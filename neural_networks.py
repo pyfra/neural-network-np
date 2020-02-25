@@ -5,6 +5,7 @@ class ANN:
 
     def __init__(self):
         self._layers = []
+        self.cost_function = None
 
     def add(self, layer):
         self.layer.append(layer)
