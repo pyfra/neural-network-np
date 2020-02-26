@@ -1,5 +1,5 @@
 import numpy as np
-
+from initializers import *
 
 class Layer:
 
@@ -29,10 +29,10 @@ class ReLU(Layer):
 
 class Dense(Layer):
 
-    def __init__(self, input_units, output_units, learning_rate=0.1):
+    def __init__(self, input_units, output_units, learning_rate=0.1, w_initializers=Xavier(), biases_initializer=Zeros()):
         self.learning_rate = learning_rate
-        self.weights = np.random.randn(input_units, output_units) * 0.01
-        self.biases = np.zeros(output_units)
+        self.weights = w_initializers(input_units, output_units)
+        self.biases = biases_initializer(input_units, output_units)
 
     def forward(self, input):
         return input @ self.weights + self.biases
