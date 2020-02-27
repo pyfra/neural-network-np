@@ -33,6 +33,7 @@ class Dense(Layer):
         self.learning_rate = learning_rate
         self.weights = w_initializers(input_units, output_units)
         self.biases = biases_initializer(input_units, output_units)
+        self.optimizer = None
 
     def forward(self, input):
         return input @ self.weights + self.biases
@@ -48,3 +49,6 @@ class Dense(Layer):
         self.biases = self.biases - self.learning_rate * grad_biases
 
         return grad_input
+
+    def set_optimizer(self, optimizer):
+        self.optimizer = optimizer

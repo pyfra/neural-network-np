@@ -1,4 +1,3 @@
-# https://github.com/keras-team/keras/blob/master/keras/initializers.py#L33
 import numpy as np
 
 
