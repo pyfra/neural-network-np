@@ -46,3 +46,6 @@ class ANN:
 
     def __len__(self):
         return len(self._layers)
+
+    def fit(self, X, y):
+        pass

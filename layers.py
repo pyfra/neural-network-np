@@ -1,6 +1,7 @@
 import numpy as np
 from initializers import *
 
+
 class Layer:
 
     def __init__(self):
@@ -16,6 +17,7 @@ class Layer:
 
 
 class ReLU(Layer):
+
     def __init__(self):
         pass
 
@@ -29,7 +31,8 @@ class ReLU(Layer):
 
 class Dense(Layer):
 
-    def __init__(self, input_units, output_units, learning_rate=0.1, w_initializers=Xavier(), biases_initializer=Zeros()):
+    def __init__(self, input_units, output_units, learning_rate=0.1, w_initializers=Xavier(),
+                 biases_initializer=Zeros()):
         self.learning_rate = learning_rate
         self.weights = w_initializers(input_units, output_units)
         self.biases = biases_initializer(input_units, output_units)
@@ -52,3 +55,7 @@ class Dense(Layer):
 
     def set_optimizer(self, optimizer):
         self.optimizer = optimizer
+
+
+class Dropout(Layer):
+    pass
