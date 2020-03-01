@@ -6,7 +6,7 @@ class Optimizer:
 
 class SGD(Optimizer):
 
-    def __init__(self, learning_rate, momentum, nesterov):
+    def __init__(self, learning_rate=0.1, momentum=None, nesterov=False):
         self.learning_rate = learning_rate
         self.momentum = momentum
         self.nesterov = nesterov

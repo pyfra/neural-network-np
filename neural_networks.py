@@ -1,4 +1,6 @@
 import numpy as np
+from data_handlers import BatchGenerator
+from tqdm.notebook import tqdm
 
 
 class ANN:
@@ -8,9 +10,11 @@ class ANN:
         self.cost_function = None
         self.optimizer = None
         self.metrics = None
+        self.train_log = []
+        self.validation_log = []
 
     def add(self, layer):
-        self.layer.append(layer)
+        self._layers.append(layer)
 
     def forward(self, X):
         activations = []
@@ -25,11 +29,11 @@ class ANN:
     def train(self, X, y):
         # Get the layer activations
         layer_activations = self.forward(X)
-        layer_inputs = [X] + layer_activations  # layer_input[i] is an input for network[i]
+        layer_inputs = [X] + layer_activations
         logits = layer_activations[-1]
 
         # Compute the loss and the initial gradient
-        loss = self.cost_function.compute(logits, y)
+        loss = self.cost_function(logits, y)
         loss_grad = self.cost_function.grad(logits, y)
 
         grad_output = loss_grad
@@ -39,13 +43,34 @@ class ANN:
 
         return np.mean(loss)
 
-    def compile(self, cost_function, optimizer, metrics):
+    def compile(self, cost_function, optimizer, metrics=None):
         self.cost_function = cost_function
         self.optimizer = optimizer
-        self.metrics = metrics
+        if metrics is None:
+            self.metrics = cost_function
+        else:
+            self.metrics = metrics
+
+        for layer in self._layers:
+            layer.set_optimizer(optimizer)
 
     def __len__(self):
         return len(self._layers)
 
-    def fit(self, X, y):
-        pass
+    def predict(self, X):
+        return self.forward(X)[-1]
+
+    def fit(self, X_train, y_train, X_val, y_val, batch_size, epochs):
+
+        for epoch in range(epochs):
+            print("Epoch", epoch)
+            data_generator = BatchGenerator(batch_size)(X_train, y_train)
+            for (X_batch, y_batch) in tqdm(data_generator):
+                self.train(X_batch, y_batch)
+                self.train_log.append(np.mean(self.cost_function(self.predict(X_train), y_train)))
+                self.validation_log.append(np.mean(self.cost_function(self.predict(X_val), y_val)))
+            print("Train accuracy:", self.train_log[-1])
+            print("Val accuracy:", self.validation_log[-1])
+
+    def summary(self):
+        raise NotImplementedError()

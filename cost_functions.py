@@ -3,7 +3,7 @@ import numpy as np
 
 class CostFunction:
 
-    def compute(self, y_hat, y):
+    def __call__(self, y_hat, y):
         return 0
 
     def grad(self, y_hat, y):
@@ -12,7 +12,7 @@ class CostFunction:
 
 class SoftmaxCrossEntropy(CostFunction):
 
-    def compute(self, y_hat, y):
+    def __call__(self, y_hat, y):
         logits_for_answers = y_hat[np.arange(len(y_hat)), y]
         xentropy = - logits_for_answers + np.log(np.sum(np.exp(y_hat), axis=-1))
         return xentropy
