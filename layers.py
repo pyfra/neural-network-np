@@ -27,8 +27,8 @@ class ReLU(Layer):
     def forward(self, input):
         return np.maximum(input, 0)
 
-    def backward(self, input, grad_output):
-        relu_grad = input > 0
+    def backward(self, input_, grad_output):
+        relu_grad = input_ > 0
         return grad_output * relu_grad
 
 
