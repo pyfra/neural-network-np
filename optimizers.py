@@ -1,3 +1,6 @@
+import numpy as np
+
+
 class Optimizer:
 
     def delta_params(self):
@@ -6,17 +9,27 @@ class Optimizer:
 
 class SGD(Optimizer):
 
-    def __init__(self, learning_rate=0.1, momentum=None, nesterov=False):
+    def __init__(self, learning_rate=0.1, momentum=.9, nesterov=False):
         self.learning_rate = learning_rate
         self.momentum = momentum
         self.nesterov = nesterov
         self.gradient_w = list()
         self.gradient_b = list()
+        self.accumulated_grad_weights = None
+        self.accumulated_grad_biases = None
 
     def delta_params(self, grad, params_name='weights'):
         if params_name == 'weights':
             self.gradient_w.append(grad)
+            self.accumulated_grad_weights = self._apply_momentum(self.accumulated_grad_weights, grad)
+            return self.accumulated_grad_weights
         else:
-            self.gradient_b.append(grad)
+            self.accumulated_grad_biases = self._apply_momentum(self.accumulated_grad_biases, grad)
+            return self.accumulated_grad_biases
 
-        return -self.learning_rate * grad
+    def _apply_momentum(self, accumulated_grad, grad):
+        if accumulated_grad is None:
+            accumulated_grad = np.zeros_like(grad)
+        accumulated_grad = accumulated_grad * self.momentum - (
+                1 - self.momentum) * self.learning_rate * grad
+        return accumulated_grad
