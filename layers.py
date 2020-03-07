@@ -21,9 +21,6 @@ class Layer:
 
 class ReLU(Layer):
 
-    def __init__(self):
-        pass
-
     def forward(self, input):
         return np.maximum(input, 0)
 
@@ -58,4 +55,14 @@ class Dense(Layer):
 
 
 class Dropout(Layer):
-    pass
+
+    def __init__(self, p):
+        assert (p >= 0) & (p <= 1), "invalid number for p (%4.f), please enter a probability between 0 and 1" % p
+        self.p = p
+
+    def forward(self, input_):
+        self.mask = np.random.binomial(1, self.p, size=input_.shape)/self.p
+        return input_ * self.mask
+
+    def backward(self, input_, grad_output):
+        return grad_output * self.mask
