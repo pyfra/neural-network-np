@@ -52,7 +52,7 @@ class ANN:
             self.metric = metric
 
         for layer in self._layers:
-            layer.set_optimizer(optimizer)
+            layer.set_optimizer(optimizer())
 
     def __len__(self):
         return len(self._layers)
