@@ -19,14 +19,24 @@ class Layer:
         self.optimizer = optimizer
 
 
-class ReLU(Layer):
+class LeakyReLU(Layer):
 
-    def forward(self, input):
-        return np.maximum(input, 0)
+    def __init__(self, alpha=1e-3):
+        self.alpha = alpha
+
+    def forward(self, input_):
+        return np.maximum(input_, self.alpha * input_)
 
     def backward(self, input_, grad_output):
-        relu_grad = input_ > 0
-        return grad_output * relu_grad
+        grad = input_.copy()
+        grad[grad <= 0] *= self.alpha
+        return grad_output * grad
+
+
+class ReLU(LeakyReLU):
+
+    def __init__(self):
+        self.alpha = 0
 
 
 class Dense(Layer):
@@ -61,7 +71,7 @@ class Dropout(Layer):
         self.p = p
 
     def forward(self, input_):
-        self.mask = np.random.binomial(1, self.p, size=input_.shape)/self.p
+        self.mask = np.random.binomial(1, self.p, size=input_.shape) / self.p
         return input_ * self.mask
 
     def backward(self, input_, grad_output):
