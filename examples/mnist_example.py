@@ -25,5 +25,5 @@ ann.add(Dropout(.5))
 ann.add(Dense(200, 10))
 
 # train network
-ann.compile(SoftmaxCrossEntropy(), SGD, accuracy)
+ann.compile(SoftmaxCrossEntropy(), SGD(), accuracy)
 ann.fit(X_train, y_train, X_test, y_test, batch_size=32, epochs=25)

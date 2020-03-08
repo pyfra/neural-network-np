@@ -41,7 +41,7 @@ class TestActivations(unittest.TestCase):
 
         # test positive and negative
         input_ = self.input_checker.create_argument(np.arange(-5, 5))
-        self.assertTrue(np.allclose(np.concatenate((np.zeros(6), np.arange(1, 5))), relu.backward(input_, grad_output)))
+        self.assertTrue(np.allclose(np.concatenate((np.zeros(6), np.ones(4))), relu.backward(input_, grad_output)))
         self.input_checker.check_argument(input_)
 
     def test_leakyrelu_forward(self):
@@ -72,7 +72,7 @@ class TestActivations(unittest.TestCase):
 
         # test all negative
         input_ = np.ones(10) * -1
-        self.assertTrue(np.allclose(input_ * lrelu.alpha, lrelu.backward(input_, grad_output)))
+        self.assertTrue(np.allclose(np.ones(10) * lrelu.alpha, lrelu.backward(input_, grad_output)))
 
         # check input_ has not been changed
         self.assertTrue(np.allclose(input_, np.ones(10) * -1))
@@ -80,7 +80,7 @@ class TestActivations(unittest.TestCase):
         # test positive and negative
         input_ = self.input_checker.create_argument(np.arange(-5, 5, dtype=np.float64))
         self.assertTrue(
-            np.allclose(np.concatenate((np.arange(-5, 1) * lrelu.alpha, np.arange(1, 5))),
+            np.allclose(np.concatenate((np.ones(6) * lrelu.alpha, np.ones(4))),
                         lrelu.backward(input_, grad_output)))
         self.input_checker.check_argument(input_)
 

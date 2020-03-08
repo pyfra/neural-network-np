@@ -28,8 +28,7 @@ class LeakyReLU(Layer):
         return np.maximum(input_, self.alpha * input_)
 
     def backward(self, input_, grad_output):
-        grad = input_.copy()
-        grad[grad <= 0] *= self.alpha
+        grad = np.where(input_ > 0, 1, self.alpha)
         return grad_output * grad
 
 

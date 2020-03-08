@@ -1,6 +1,7 @@
 import numpy as np
 from data_handlers import BatchGenerator
 from tqdm.notebook import tqdm
+import copy
 
 
 class ANN:
@@ -52,7 +53,7 @@ class ANN:
             self.metric = metric
 
         for layer in self._layers:
-            layer.set_optimizer(optimizer())
+            layer.set_optimizer(copy.copy(optimizer))
 
     def __len__(self):
         return len(self._layers)
@@ -69,8 +70,8 @@ class ANN:
                 self.train(X_batch, y_batch)
                 self.train_log.append(self.metric(self.predict(X_train), y_train))
                 self.validation_log.append(self.metric(self.predict(X_val), y_val))
-            print("Train accuracy:", self.train_log[-1])
-            print("Val accuracy:", self.validation_log[-1])
+                print("Train accuracy:", self.train_log[-1])
+                print("Val accuracy:", self.validation_log[-1])
 
     def summary(self):
         raise NotImplementedError()
