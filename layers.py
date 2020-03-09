@@ -38,6 +38,57 @@ class ReLU(LeakyReLU):
         self.alpha = 0
 
 
+class TanH(Layer):
+
+    def forward(self, input_):
+        return np.tanh(input_)
+
+    def backward(self, input_, grad_output):
+        grad = 1 - np.tanh(input_) ** 2
+        return grad_output * grad
+
+
+class ArcTan(Layer):
+
+    def forward(self, input_):
+        return np.arctan(input_)
+
+    def backward(self, input_, grad_output):
+        grad = 1 / (input_ ** 2 + 1)
+        return grad_output * grad
+
+
+class SoftPlus(Layer):
+
+    def forward(self, input_):
+        return np.log(1 + np.exp(input_))
+
+    def backward(self, input_, grad_output):
+        grad = 1 / (1 + np.exp(-input_))
+        return grad_output * grad
+
+
+class ELU(ReLU):
+
+    def forward(self, input_):
+        return np.maximum(input_, self.alpha * (np.exp(input_) - 1))
+
+    def backward(self, input_, grad_output):
+        grad = self.alpha * np.exp(input_)
+        return grad_output * grad
+
+
+class Sigmoid(Layer):
+
+    def forward(self, input_):
+        return 1. / (1 + np.exp(-input_))
+
+    def backward(self, input_, grad_output):
+        sig = lambda x: 1. / (1 + np.exp(-x))
+        grad = sig(input_) * (1 - sig(input_))
+        return grad_output * grad
+
+
 class Dense(Layer):
 
     def __init__(self, input_units, output_units, learning_rate=0.1, w_initializers=Xavier(),
