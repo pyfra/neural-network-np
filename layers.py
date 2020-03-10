@@ -1,5 +1,5 @@
 import numpy as np
-from initializers import *
+import initializers
 
 
 class Layer:
@@ -74,7 +74,7 @@ class ELU(ReLU):
         return np.maximum(input_, self.alpha * (np.exp(input_) - 1))
 
     def backward(self, input_, grad_output):
-        grad = self.alpha * np.exp(input_)
+        grad = np.where(input_ > 0, 1, self.alpha * np.exp(input_))
         return grad_output * grad
 
 
@@ -91,8 +91,8 @@ class Sigmoid(Layer):
 
 class Dense(Layer):
 
-    def __init__(self, input_units, output_units, learning_rate=0.1, w_initializers=Xavier(),
-                 biases_initializer=Zeros()):
+    def __init__(self, input_units, output_units, learning_rate=0.1, w_initializers=initializers.Xavier(),
+                 biases_initializer=initializers.Zeros()):
         self.learning_rate = learning_rate
         self.weights = w_initializers((input_units, output_units))
         self.biases = biases_initializer((output_units))
@@ -116,7 +116,7 @@ class Dense(Layer):
 
 class Dropout(Layer):
 
-    def __init__(self, p):
+    def __init__(self, p=.5):
         assert (p >= 0) & (p <= 1), "invalid number for p (%4.f), please enter a probability between 0 and 1" % p
         self.p = p
 
@@ -125,4 +125,4 @@ class Dropout(Layer):
         return input_ * self.mask
 
     def backward(self, input_, grad_output):
-        return grad_output * self.mask
+        return grad_output * self.mask * self.p
