@@ -97,6 +97,7 @@ class Dense(Layer):
         self.weights = w_initializers((input_units, output_units))
         self.biases = biases_initializer((output_units))
         self.optimizer = None
+        self._trainable = True
 
     def forward(self, input):
         return input @ self.weights + self.biases
@@ -107,9 +108,10 @@ class Dense(Layer):
         grad_weights = np.dot(input.T, grad_output)
         grad_biases = np.sum(grad_output, axis=0)
 
-        assert grad_weights.shape == self.weights.shape and grad_biases.shape == self.biases.shape
-        self.weights = self.weights + self.optimizer.delta_params(grad_weights, "weights")
-        self.biases = self.biases + self.optimizer.delta_params(grad_biases, "biases")
+        if self._trainable:
+            assert grad_weights.shape == self.weights.shape and grad_biases.shape == self.biases.shape
+            self.weights = self.weights + self.optimizer.delta_params(grad_weights, "weights")
+            self.biases = self.biases + self.optimizer.delta_params(grad_biases, "biases")
 
         return grad_input
 
@@ -120,9 +122,11 @@ class Dropout(Layer):
         assert (p >= 0) & (p <= 1), "invalid number for p (%4.f), please enter a probability between 0 and 1" % p
         self.p = p
 
-    def forward(self, input_):
+    def forward(self, input_, seed=None):
+        if not (seed is None):
+            np.random.seed(seed)
         self.mask = np.random.binomial(1, self.p, size=input_.shape) / self.p
         return input_ * self.mask
 
     def backward(self, input_, grad_output):
-        return grad_output * self.mask * self.p
+        return grad_output * self.mask

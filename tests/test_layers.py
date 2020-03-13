@@ -95,24 +95,17 @@ class TestGradient(unittest.TestCase):
         all_layers = dict([(name, cls) for name, cls in layers.__dict__.items() if isinstance(cls, type)])
         for name, layer in all_layers.items():
             if layer == Dense:
-                # init_layer = layer(*input_.shape)
-                continue
-                """
-                Issue with shape of Dense layers, still need to check
-                """
-            elif layer == Dropout:
-                """
-                Every forward pass the mask would be generated (random) find a way to fix it, otherwise the 
-                numerical gradient will not be possible to evaluate
-                """
-                pass
-
+                init_layer = layer(input_.shape[1], input_.shape[1])
+                init_layer._trainable = False
             else:
                 init_layer = layer()
-        numerical_grad = eval_numerical_gradient(lambda x: init_layer.forward(x).mean(), x=input_)
-        grads = init_layer.backward(input_, grad_out)
-        self.assertTrue(np.allclose(grads, numerical_grad, rtol=1e-3, atol=0),
-                        'numerical grads problem for layer %s' % name)
+            if layer == Dropout:
+                numerical_grad = eval_numerical_gradient(lambda x: init_layer.forward(x, seed=1).mean(), x=input_)
+            else:
+                numerical_grad = eval_numerical_gradient(lambda x: init_layer.forward(x).mean(), x=input_)
+            grads = init_layer.backward(input_, grad_out)
+            self.assertTrue(np.allclose(grads, numerical_grad, rtol=1e-3, atol=0),
+                            'numerical grads problem for layer %s' % name)
 
 
 class InputChecker:
