@@ -23,3 +23,11 @@ class SoftmaxCrossEntropy(CostFunction):
         softmax = np.exp(y_hat) / np.exp(y_hat).sum(axis=-1, keepdims=True)
         return (- ones_for_answers + softmax) / y_hat.shape[0]
 
+
+# class MSE(CostFunction):
+#
+#     def __call__(self, y_hat, y):
+#         return np.mean((y - y_hat) ** 2) * .5
+#
+#     def grad(self, y_hat, y):
+#         pass
