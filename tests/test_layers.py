@@ -108,6 +108,17 @@ class TestGradient(unittest.TestCase):
                             'numerical grads problem for layer %s' % name)
 
 
+class TestLayersForward(unittest.TestCase):
+
+    def test_dense(self):
+        layer = Dense(3, 4)
+        x = np.linspace(-1, 1, 2 * 3).reshape([2, 3])
+        layer.weights = np.linspace(-1, 1, 3 * 4).reshape([3, 4])
+        layer.biases = np.linspace(-1, 1, 4)
+        assert np.allclose(layer.forward(x), np.array([[0.07272727, 0.41212121, 0.75151515, 1.09090909],
+                                                       [-0.90909091, 0.08484848, 1.07878788, 2.07272727]]))
+
+
 class InputChecker:
 
     def __init__(self):
