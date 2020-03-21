@@ -25,7 +25,7 @@ class TestCostFunctions(unittest.TestCase):
         mse = cf.MSE()
         y = np.array([1, 9, 2, -5, -2, 6]).reshape(2, 3)
         y_hat = np.array([4, 8, 12, 8, 1, 3]).reshape(2, 3)
-        computed_cost = mse(y_hat, y).mean()
+        computed_cost = mse(y_hat, y)
         assert np.isclose(computed_cost, 49.5, atol=1e-3)
 
     def test_gradient_all(self):
@@ -40,7 +40,11 @@ class TestCostFunctions(unittest.TestCase):
                     actual_y = self.y['regression']
                     y_hat = self.y_hat['regression']
 
-                numerical_grad = eval_numerical_gradient(lambda x: cost_f(x, actual_y).mean(), x=y_hat)
+                numerical_grad = eval_numerical_gradient(lambda x: cost_f(x, actual_y), x=y_hat)
                 grads = cost_f.grad(y_hat, actual_y)
                 self.assertTrue(np.allclose(grads, numerical_grad, rtol=1e-3, atol=0),
                                 'numerical grads problem for layer %s' % name)
+
+
+if __name__ == '__main__':
+    unittest.main()

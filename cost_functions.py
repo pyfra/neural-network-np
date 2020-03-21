@@ -15,7 +15,7 @@ class SoftmaxCrossEntropy(CostFunction):
     def __call__(self, y_hat, y):
         logits_for_answers = y_hat[np.arange(len(y_hat)), y]
         xentropy = - logits_for_answers + np.log(np.sum(np.exp(y_hat), axis=-1))
-        return xentropy
+        return np.mean(xentropy)
 
     def grad(self, y_hat, y):
         ones_for_answers = np.zeros_like(y_hat)
@@ -27,7 +27,7 @@ class SoftmaxCrossEntropy(CostFunction):
 class MSE(CostFunction):
 
     def __call__(self, y_hat, y):
-        return (y - y_hat) ** 2
+        return np.mean((y - y_hat) ** 2)
 
     def grad(self, y_hat, y):
         return -2 * (y - y_hat) / y_hat.shape[0]

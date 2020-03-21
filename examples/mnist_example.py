@@ -4,7 +4,7 @@ from neural_networks import ANN
 from layers import *
 from cost_functions import SoftmaxCrossEntropy
 from optimizers import Momentum
-from metrics import accuracy
+from metrics import Accuracy
 
 
 # load and prepare dataset
@@ -25,5 +25,5 @@ ann.add(Dropout(.5))
 ann.add(Dense(200, 10))
 
 # train network
-ann.compile(SoftmaxCrossEntropy(), Momentum(), accuracy)
+ann.compile(SoftmaxCrossEntropy(), Momentum(), Accuracy())
 ann.fit(X_train, y_train, X_test, y_test, batch_size=32, epochs=25)

@@ -59,7 +59,7 @@ class ANN:
         return len(self._layers)
 
     def predict(self, X):
-        return (self.forward(X)[-1]).argmax(axis=-1)
+        return self.forward(X)[-1]
 
     def fit(self, X_train, y_train, X_val, y_val, batch_size, epochs):
 
@@ -68,10 +68,10 @@ class ANN:
             data_generator = BatchGenerator(batch_size)(X_train, y_train)
             for (X_batch, y_batch) in tqdm(data_generator):
                 self.train(X_batch, y_batch)
-                self.train_log.append(self.metric(self.predict(X_train), y_train))
+                self.train_log.append(self.metric(self.predict(X_batch), y_batch))
                 self.validation_log.append(self.metric(self.predict(X_val), y_val))
-                print("Train accuracy:", self.train_log[-1])
-                print("Val accuracy:", self.validation_log[-1])
+            print("Train accuracy:", self.train_log[-1])
+            print("Val accuracy:", self.validation_log[-1])
 
     def summary(self):
         raise NotImplementedError()
