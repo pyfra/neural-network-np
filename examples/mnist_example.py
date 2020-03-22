@@ -5,7 +5,7 @@ from layers import *
 from cost_functions import SoftmaxCrossEntropy
 from optimizers import Momentum
 from metrics import Accuracy
-
+from regularizers import L2
 
 # load and prepare dataset
 (X_train, y_train), (X_test, y_test) = mnist.load_data()
@@ -25,5 +25,5 @@ ann.add(Dropout(.5))
 ann.add(Dense(200, 10))
 
 # train network
-ann.compile(SoftmaxCrossEntropy(), Momentum(), Accuracy())
+ann.compile(SoftmaxCrossEntropy(), Momentum(), Accuracy(), L2(.1))
 ann.fit(X_train, y_train, X_test, y_test, batch_size=32, epochs=25)

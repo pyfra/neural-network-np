@@ -18,6 +18,9 @@ class Layer:
     def set_optimizer(self, optimizer):
         self.optimizer = optimizer
 
+    def set_regularizer(self, regularizer):
+        self.regularizer = regularizer
+
 
 class LeakyReLU(Layer):
 
@@ -91,9 +94,8 @@ class Sigmoid(Layer):
 
 class Dense(Layer):
 
-    def __init__(self, input_units, output_units, learning_rate=0.1, w_initializers=initializers.Xavier(),
+    def __init__(self, input_units, output_units, w_initializers=initializers.Xavier(),
                  biases_initializer=initializers.Zeros()):
-        self.learning_rate = learning_rate
         self.weights = w_initializers((input_units, output_units))
         self.biases = biases_initializer((output_units))
         self.optimizer = None
@@ -110,7 +112,12 @@ class Dense(Layer):
 
         if self._trainable:
             assert grad_weights.shape == self.weights.shape and grad_biases.shape == self.biases.shape
-            self.weights = self.weights + self.optimizer.delta_params(grad_weights, "weights")
+            l2_adj = (self.regularizer.l2 * self.optimizer.learning_rate) / input.shape[0]
+            if self.regularizer.l1:
+                l1_adj = (self.regularizer.l1 * self.optimizer.learning_rate) * np.sign(self.weights) / input.shape[0]
+            else:
+                l1_adj = 0
+            self.weights = (1 - l2_adj) * self.weights - l1_adj + self.optimizer.delta_params(grad_weights, "weights")
             self.biases = self.biases + self.optimizer.delta_params(grad_biases, "biases")
 
         return grad_input

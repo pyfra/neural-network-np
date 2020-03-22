@@ -2,6 +2,7 @@ import numpy as np
 from data_handlers import BatchGenerator
 from tqdm.notebook import tqdm
 import copy
+from regularizers import L1L2
 
 
 class ANN:
@@ -44,7 +45,7 @@ class ANN:
 
         return np.mean(loss)
 
-    def compile(self, cost_function, optimizer, metric=None):
+    def compile(self, cost_function, optimizer, metric=None, regularizer=L1L2()):
         self.cost_function = cost_function
         self.optimizer = optimizer
         if metric is None:
@@ -54,6 +55,7 @@ class ANN:
 
         for layer in self._layers:
             layer.set_optimizer(copy.copy(optimizer))
+            layer.set_regularizer(regularizer)
 
     def __len__(self):
         return len(self._layers)
