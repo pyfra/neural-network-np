@@ -14,6 +14,7 @@ class ANN:
         self.metrics = None
         self.train_log = []
         self.validation_log = []
+        self.validation_metric_log = []
 
     def add(self, layer):
         self._layers.append(layer)
@@ -70,10 +71,14 @@ class ANN:
             data_generator = BatchGenerator(batch_size)(X_train, y_train)
             for (X_batch, y_batch) in tqdm(data_generator):
                 self.train(X_batch, y_batch)
-                self.train_log.append(self.metric(self.predict(X_batch), y_batch))
-                self.validation_log.append(self.metric(self.predict(X_val), y_val))
-            print("Train accuracy:", self.train_log[-1])
-            print("Val accuracy:", self.validation_log[-1])
+                reg_cost = self.regularization_cost()
+                self.train_log.append(self.cost_function(self.predict(X_batch), y_batch) + reg_cost)
+                self.validation_log.append(self.cost_function(self.predict(X_val), y_val) + reg_cost)
+                self.validation_metric_log.append(self.metric(self.predict(X_val), y_val))
+            print("Val metric: ", self.validation_metric_log[-1])
 
     def summary(self):
         raise NotImplementedError()
+
+    def regularization_cost(self):
+        return np.sum([layer.get_regularization_cost() for layer in self._layers])

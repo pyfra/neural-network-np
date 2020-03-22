@@ -21,6 +21,9 @@ class Layer:
     def set_regularizer(self, regularizer):
         self.regularizer = regularizer
 
+    def get_regularization_cost(self):
+        return 0
+
 
 class LeakyReLU(Layer):
 
@@ -121,6 +124,9 @@ class Dense(Layer):
             self.biases = self.biases + self.optimizer.delta_params(grad_biases, "biases")
 
         return grad_input
+
+    def get_regularization_cost(self):
+        return self.regularizer(self.weights)
 
 
 class Dropout(Layer):
