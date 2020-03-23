@@ -35,7 +35,7 @@ In our implementation the penalty term is lambda / 2 * n, where n is the batch s
 """
 
 LEARNING_RATE = .1
-BATCH_SIZE = 10
+BATCH_SIZE = 1
 ann.compile(MSE(), Momentum(learning_rate=LEARNING_RATE), MSE(), L2(LAMBDA * BATCH_SIZE * 2))
 # ignoring for this example train/validation split
 ann.fit(X_norm, y, X_norm, y, batch_size=BATCH_SIZE, epochs=30)  # small batch size

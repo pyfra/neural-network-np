@@ -31,3 +31,15 @@ class MSE(CostFunction):
 
     def grad(self, y_hat, y):
         return -2 * (y - y_hat) / y_hat.shape[0]
+
+
+class MAE(CostFunction):
+    """
+    Implementation of mean absolute error
+    """
+
+    def __call__(self, y_hat, y):
+        return np.mean(np.abs(y - y_hat))
+
+    def grad(self, y_hat, y):
+        return np.where((y - y_hat) > 0, -1, 1) / y_hat.shape[0]

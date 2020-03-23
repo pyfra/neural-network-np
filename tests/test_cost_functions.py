@@ -28,6 +28,13 @@ class TestCostFunctions(unittest.TestCase):
         computed_cost = mse(y_hat, y)
         assert np.isclose(computed_cost, 49.5, atol=1e-3)
 
+    def test_mae(self):
+        mae = cf.MAE()
+        y = np.array([1, 9, 2, -5, -2, 6]).reshape(2, 3)
+        y_hat = np.array([4, 8, 12, 8, 1, 3]).reshape(2, 3)
+        computed_cost = mae(y_hat, y)
+        assert np.isclose(computed_cost, 5.5, atol=1e-3)
+
     def test_gradient_all(self):
         all_cf = dict([(name, cls) for name, cls in cf.__dict__.items() if isinstance(cls, type)])
         for name, cost_function in all_cf.items():
@@ -43,7 +50,7 @@ class TestCostFunctions(unittest.TestCase):
                 numerical_grad = eval_numerical_gradient(lambda x: cost_f(x, actual_y), x=y_hat)
                 grads = cost_f.grad(y_hat, actual_y)
                 self.assertTrue(np.allclose(grads, numerical_grad, rtol=1e-3, atol=0),
-                                'numerical grads problem for layer %s' % name)
+                                'numerical grads does not equal analytical grad for layer %s' % name)
 
 
 if __name__ == '__main__':
