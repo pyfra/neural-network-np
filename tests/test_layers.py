@@ -97,6 +97,8 @@ class TestGradient(unittest.TestCase):
             if layer == Dense:
                 init_layer = layer(input_.shape[1], input_.shape[1])
                 init_layer._trainable = False
+            elif layer == BatchReguralization:
+                init_layer = layer(input_.shape[1])
             else:
                 init_layer = layer()
             if layer == Dropout:
@@ -115,8 +117,23 @@ class TestLayersForward(unittest.TestCase):
         x = np.linspace(-1, 1, 2 * 3).reshape([2, 3])
         layer.weights = np.linspace(-1, 1, 3 * 4).reshape([3, 4])
         layer.biases = np.linspace(-1, 1, 4)
-        assert np.allclose(layer.forward(x), np.array([[0.07272727, 0.41212121, 0.75151515, 1.09090909],
-                                                       [-0.90909091, 0.08484848, 1.07878788, 2.07272727]]))
+        self.assertTrue(np.allclose(layer.forward(x), np.array([[0.07272727, 0.41212121, 0.75151515, 1.09090909],
+                                                       [-0.90909091, 0.08484848, 1.07878788, 2.07272727]])))
+
+
+class TestLayersBatchReguralization(unittest.TestCase):
+
+    def test_dense(self):
+        layer = BatchReguralization(20)
+        input_ = np.random.randn(10, 20) * 2 + 10
+        new_input = layer.forward(input_)
+        means = np.mean(new_input, axis=0)
+        stds = np.std(new_input, axis=0)
+
+        self.assertTrue(len(means) == 20)
+        self.assertTrue(len(stds) == 20)
+        self.assertTrue(np.allclose(means, np.zeros_like(means)))
+        self.assertTrue(np.allclose(stds, np.ones_like(stds)))
 
 
 class InputChecker:

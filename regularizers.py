@@ -19,7 +19,7 @@ class L1L2(Regularizer):
     def __call__(self, w, *args, **kwargs):
         regularization_cost = 0
         """
-        Tecnichally we could not check if self.l1 is different from 0, and just write somthing like
+        Tecnichally we could not check if self.l1 is different from 0, and just write something like
         return  self.l1 * np.sum(np.abs(w)) + self.l2 * np.sum(np.square(w)), 
         but  np.sum(np.abs(w)) and np.sum(np.square(w)) are quite expensive operations we do not want to run unless
         we have to
