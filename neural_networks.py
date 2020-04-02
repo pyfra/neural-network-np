@@ -55,7 +55,7 @@ class ANN:
             self.metric = metric
 
         for layer in self._layers:
-            layer.set_optimizer(copy.copy(optimizer))
+            layer.set_optimizer(copy.deepcopy(optimizer))
             layer.set_regularizer(regularizer)
 
     def __len__(self):

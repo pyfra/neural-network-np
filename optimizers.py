@@ -8,30 +8,34 @@ class Optimizer:
 
 
 class Momentum(Optimizer):
-    # TODO fix optimizers to save params with different names and to use the name to access gradient information
+    
     def __init__(self, learning_rate=0.1, momentum=.9):
         self.learning_rate = learning_rate
         self.momentum = momentum
         self.gradient_w = list()
         self.gradient_b = list()
-        self.accumulated_grad_weights = None
-        self.accumulated_grad_biases = None
+        self.accumulated_grads = dict()
+        self.params_grads = dict()
 
     def delta_params(self, grad, params_name='weights'):
-        if params_name == 'weights':
-            self.gradient_w.append(grad)
-            self.accumulated_grad_weights = self._apply_momentum(self.accumulated_grad_weights, grad)
-            return self.accumulated_grad_weights
-        else:
-            self.accumulated_grad_biases = self._apply_momentum(self.accumulated_grad_biases, grad)
-            return self.accumulated_grad_biases
+        self._save_grad(grad, params_name)
+        self._apply_momentum(params_name, grad)
+        return self.accumulated_grads[params_name]
 
-    def _apply_momentum(self, accumulated_grad, grad):
-        if accumulated_grad is None:
+    def _apply_momentum(self, params_name, grad):
+        if not params_name in self.accumulated_grads:
             accumulated_grad = np.zeros_like(grad)
+        else:
+            accumulated_grad = self.accumulated_grads[params_name]
         accumulated_grad = accumulated_grad * self.momentum - (
                 1 - self.momentum) * self.learning_rate * grad
-        return accumulated_grad
+        self.accumulated_grads[params_name] = accumulated_grad
+
+    def _save_grad(self, grad, params_name):
+        if not params_name in self.params_grads:
+            self.params_grads[params_name] = [grad]
+        else:
+            self.params_grads[params_name].append(grad)
 
 
 class NesterovMomentum(Momentum):
