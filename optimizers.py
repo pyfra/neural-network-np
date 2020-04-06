@@ -8,7 +8,7 @@ class Optimizer:
 
 
 class Momentum(Optimizer):
-    
+
     def __init__(self, learning_rate=0.1, momentum=.9):
         self.learning_rate = learning_rate
         self.momentum = momentum

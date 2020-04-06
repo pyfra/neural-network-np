@@ -1,7 +1,7 @@
 import unittest
 from layers import *
 import numpy as np
-from tests.testing_utilities import eval_numerical_gradient
+from tests.testing_utilities import eval_numerical_gradient, eval_numerical_gradient_array
 import layers
 
 
@@ -103,6 +103,8 @@ class TestGradient(unittest.TestCase):
                 init_layer = layer()
             if layer == Dropout:
                 numerical_grad = eval_numerical_gradient(lambda x: init_layer.forward(x, seed=1).mean(), x=input_)
+            elif layer == BatchReguralization:
+                continue
             else:
                 numerical_grad = eval_numerical_gradient(lambda x: init_layer.forward(x).mean(), x=input_)
             grads = init_layer.backward(input_, grad_out)
@@ -118,14 +120,16 @@ class TestLayersForward(unittest.TestCase):
         layer.weights = np.linspace(-1, 1, 3 * 4).reshape([3, 4])
         layer.biases = np.linspace(-1, 1, 4)
         self.assertTrue(np.allclose(layer.forward(x), np.array([[0.07272727, 0.41212121, 0.75151515, 1.09090909],
-                                                       [-0.90909091, 0.08484848, 1.07878788, 2.07272727]])))
+                                                                [-0.90909091, 0.08484848, 1.07878788, 2.07272727]])))
 
 
 class TestLayersBatchReguralization(unittest.TestCase):
 
-    def test_dense(self):
+    def test_forward(self):
         layer = BatchReguralization(20)
         input_ = np.random.randn(10, 20) * 2 + 10
+        layer.gamma = np.ones(20)
+        layer.beta = np.zeros(20)
         new_input = layer.forward(input_)
         means = np.mean(new_input, axis=0)
         stds = np.std(new_input, axis=0)
@@ -134,6 +138,41 @@ class TestLayersBatchReguralization(unittest.TestCase):
         self.assertTrue(len(stds) == 20)
         self.assertTrue(np.allclose(means, np.zeros_like(means)))
         self.assertTrue(np.allclose(stds, np.ones_like(stds)))
+
+    def test_forward2(self):
+        N, D = 4, 5
+        layer = BatchReguralization(5)
+        np.random.seed(10)
+        input_ = 5 * np.random.randn(N, D) + 12
+        gamma = np.random.randn(D)
+        beta = np.random.randn(D)
+        layer.gamma = gamma
+        layer.beta = beta
+        result = layer.forward(input_)
+
+        target_array = np.array([[-0.93152358, -0.80663908, 1.03557909, -2.60471575, 1.89923477],
+                                 [4.63876261, 0.09174836, 1.64804102, -2.55817853, 0.48238331],
+                                 [1.50806616, -1.78091162, 1.25047864, 1.20136783, 1.20017641],
+                                 [1.47518366, 2.89239921, 1.65788676, 2.87653451, -1.12897775]])
+
+        self.assertTrue(np.allclose(target_array, result))
+
+    def test_backward(self):
+        np.random.seed(10)
+        N, D = 4, 5
+        layer = BatchReguralization(5)
+        input_ = 5 * np.random.randn(N, D) + 12
+        gamma = np.random.randn(D)
+        beta = np.random.randn(D)
+        dout = np.random.randn(N, D)
+
+        layer.gamma = gamma
+        layer.beta = beta
+
+        numerical_grad = eval_numerical_gradient_array(lambda x: layer.forward(x), x=input_, df=dout)
+        gradient = layer.backward(input_, dout)
+
+        self.assertTrue(np.allclose(numerical_grad, gradient))
 
 
 class InputChecker:

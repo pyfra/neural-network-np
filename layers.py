@@ -150,28 +150,29 @@ class BatchReguralization(Layer):
     Reference paper: https://arxiv.org/abs/1502.03167
     """
 
-    def __init__(self, input_units, gamma_initializer=initializers.Ones(), beta_initializer=initializers.Zeros()):
+    def __init__(self, input_units, gamma_initializer=initializers.RandomNormal(),
+                 beta_initializer=initializers.RandomNormal(),
+                 eps=1e-5):
         self.gamma = gamma_initializer(shape=(1, input_units))
         self.beta = beta_initializer(shape=(1, input_units))
+        self.eps = eps
 
     def forward(self, input):
         if len(input.shape) == 2:
-            mean = np.mean(input, axis=0)  # batch mean
-            self.var = np.mean((input - mean) ** 2, axis=0)  # batch variance
-            self.x_hat = (input - mean) / np.sqrt(self.var + 1e-5)  # normalization
+            self.mean = np.mean(input, axis=0)  # batch mean
+            var = np.mean((input - self.mean) ** 2, axis=0)  # batch variance
+            self.var = np.sqrt(var + self.eps)
+            self.x_hat = (input - self.mean) / self.var  # normalization
             output = self.gamma * self.x_hat + self.beta  # scale and shift
         else:
             raise NotImplementedError("Batch reguralization does not currently support tensors > 2 dimensions")
         return output
 
     def backward(self, input_, grad_output):
-
-        # TODO check error test gradient
         m = len(input_)
         dxhat = grad_output * self.gamma
         dx = (1. / m) * 1 / self.var * (m * dxhat - np.sum(dxhat, axis=0)
                                         - self.x_hat * np.sum(dxhat * self.x_hat, axis=0))
         self.beta -= np.sum(grad_output, axis=0)
         self.gamma -= np.sum(self.x_hat * grad_output, axis=0)
-
-        return dx * grad_output
+        return dx
