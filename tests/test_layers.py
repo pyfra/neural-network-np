@@ -97,14 +97,12 @@ class TestGradient(unittest.TestCase):
             if layer == Dense:
                 init_layer = layer(input_.shape[1], input_.shape[1])
                 init_layer._trainable = False
-            elif layer == BatchReguralization:
-                init_layer = layer(input_.shape[1])
+            elif layer in [BatchReguralization, RNN]:
+                continue
             else:
                 init_layer = layer()
             if layer == Dropout:
                 numerical_grad = eval_numerical_gradient(lambda x: init_layer.forward(x, seed=1).mean(), x=input_)
-            elif layer == BatchReguralization:
-                continue
             else:
                 numerical_grad = eval_numerical_gradient(lambda x: init_layer.forward(x).mean(), x=input_)
             grads = init_layer.backward(input_, grad_out)
@@ -121,6 +119,49 @@ class TestLayersForward(unittest.TestCase):
         layer.biases = np.linspace(-1, 1, 4)
         self.assertTrue(np.allclose(layer.forward(x), np.array([[0.07272727, 0.41212121, 0.75151515, 1.09090909],
                                                                 [-0.90909091, 0.08484848, 1.07878788, 2.07272727]])))
+
+
+class TestRNN(unittest.TestCase):
+
+    def test_forward_dimesion(self):
+        X = np.ones((10, 5)) * 2
+        layer = self._build_rnn(5, 3, 1)
+        output = layer.forward(X)
+
+        # check dimension
+        self.assertTrue(output.shape[1] == 1)  # output is only one
+        self.assertTrue(output.shape[0] == 10)  # one for each time step
+
+        self.assertTrue(layer.s.shape[0] == 10 + 1)  # inizialed with state 0
+        self.assertTrue(layer.s.shape[1] == 3)
+
+    def test_forward_computation(self):
+        X = np.ones((1, 5)) * 2
+        layer = self._build_rnn(5, 3, 1)
+        output = layer.forward(X)
+        # check intermediate steps
+        target_s = np.vstack([np.zeros(3), np.ones(3) * 10])
+        self.assertTrue(np.allclose(target_s, layer.s))
+        self.assertTrue(np.allclose(np.array([30.0]), output))
+
+    def test_forward_computation2(self):
+        X = np.ones((2, 5)) * 2
+        layer = self._build_rnn(5, 3, 1)
+        output = layer.forward(X)
+        # check intermediate steps
+        target_s = np.vstack([np.zeros(3), np.ones(3) * 10, np.ones(3) * (10 + 30)])
+        self.assertTrue(np.allclose(target_s, layer.s))
+        self.assertTrue(np.allclose(np.array([[30.0], [120.0]]), output))
+
+    def _build_rnn(self, input, hidden, output):
+        layer = RNN(input, hidden, output)
+
+        # set all the weights to 1
+        layer.w_x = np.ones((input, hidden))  # input to hidden
+        layer.w_h = np.ones((hidden, hidden))  # hidden to hidden
+        layer.w_y = np.ones((hidden, output))
+
+        return layer
 
 
 class TestLayersBatchReguralization(unittest.TestCase):
